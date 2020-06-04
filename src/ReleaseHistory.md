@@ -1,10 +1,26 @@
 # SARIF Package Release History (SDK, Driver, Converters, and Multitool)
 
+## **v2.2.6** [Sdk](https://www.nuget.org/packages/Sarif.Sdk/2.2.6) | [Driver](https://www.nuget.org/packages/Sarif.Driver/2.2.6) | [Converters](https://www.nuget.org/packages/Sarif.Converters/2.2.6) | [Multitool](https://www.nuget.org/packages/Sarif.Multitool/2.2.6)
+* BUGFIX: `ResultLogJsonWriter` now creates an empty `results` array if there are no results, rather than leaving `results` as `null`. [#1821](https://github.com/microsoft/sarif-sdk/issues/1821)
+* BUGFIX: In validation rules, `shortDescription` is now calculated by `GetFirstSentence` method, fixing a bug in sentence breaking. [#1887](https://github.com/microsoft/sarif-sdk/issues/1887)
+* BUGFIX: `WorkItemFiler` now logs correctly the details for `LogMetricsForProcessedModel` method [#1896](https://github.com/microsoft/sarif-sdk/issues/1896)
+* FEATURE: Add validation rule `SARIF1019`, which requires every result to have at least one of `result.ruleId` and `result.rule.id`. If both are present, they must be equal. [#1880](https://github.com/microsoft/sarif-sdk/issues/1880)
+* FEATURE: Add validation rule `SARIF1020`, which requires that the $schema property should be present, and must refer to the final version of the SARIF 2.1.0 schema.  [#1890](https://github.com/microsoft/sarif-sdk/issues/1890)
+
+## **v2.2.5** [Sdk](https://www.nuget.org/packages/Sarif.Sdk/2.2.5) | [Driver](https://www.nuget.org/packages/Sarif.Driver/2.2.5) | [Converters](https://www.nuget.org/packages/Sarif.Converters/2.2.5) | [Multitool](https://www.nuget.org/packages/Sarif.Multitool/2.2.5)
+* BUGFIX: Fix SDK doubling Uris with certain escaped characters (ex: '-' and '_') on every Load/Save cycle (cause: https://github.com/dotnet/runtime/issues/36288)
+
+## **v2.2.4** [Sdk](https://www.nuget.org/packages/Sarif.Sdk/2.2.4) | [Driver](https://www.nuget.org/packages/Sarif.Driver/2.2.4) | [Converters](https://www.nuget.org/packages/Sarif.Converters/2.2.4) | [Multitool](https://www.nuget.org/packages/Sarif.Multitool/2.2.4)
+* BUGFIX: Validation rule SARIF1018 was not checking for a trailing slash on `uri` properties in `originalUriBaseIds` if `uriBaseId` was present.
+* BUGFIX: Build Sarif.Multitool NPM package non-trimmed to avoid more assembly load problems.
+* FEATURE: DeferredList will cache last item returned and won't throw if same instance written. (SarifRewritingVisitor + Deferred OM usable)
+
 ## **v2.2.3** [Sdk](https://www.nuget.org/packages/Sarif.Sdk/2.2.3) | [Driver](https://www.nuget.org/packages/Sarif.Driver/2.2.3) | [Converters](https://www.nuget.org/packages/Sarif.Converters/2.2.3) | [Multitool](https://www.nuget.org/packages/Sarif.Multitool/2.2.3)
+* FEATURE: Introduce `SarifConstants.SarifFileExtension` with value `".sarif"`.
+* FEATURE: In validation rule SARIF1018, require `uri` values in `originalUriBaseIds` to end with a slash, per the SARIF spec.
 * BUGFIX: Result.GetRule will look up by RuleId if RuleIndex not present.
 * BUGFIX: Baselining will properly persist Run.Tool.Driver.Rules if Results reference by RuleId.
 * BUGFIX: DeferredOM will properly load files with a BOM. (LineMappingStreamReader fix)
-* FEATURE: Introduce `SarifConstants.SarifFileExtension` with value `".sarif"`.
 * BUGFIX: Remove CsvHelper dependency to avoid assembly load problem in Sarif.Multitool NPM package.
 
 ## **v2.2.2** [Sdk](https://www.nuget.org/packages/Sarif.Sdk/2.2.2) | [Driver](https://www.nuget.org/packages/Sarif.Driver/2.2.2) | [Converters](https://www.nuget.org/packages/Sarif.Converters/2.2.2) | [Multitool](https://www.nuget.org/packages/Sarif.Multitool/2.2.2)

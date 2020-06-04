@@ -24,7 +24,7 @@ namespace Microsoft.WorkItems
 
         public FilingClient()
         {
-            this.Logger = ServiceProviderFactory.ServiceProvider.GetService<ILogger<FilingClient>>();
+            this.Logger = ServiceProviderFactory.ServiceProvider.GetService<ILogger>();
         }
 
         /// <summary>
@@ -65,6 +65,17 @@ namespace Microsoft.WorkItems
         /// An object that can be awaited to see the result groups that were actually filed.
         /// </returns>
         public abstract Task<IEnumerable<WorkItemModel>> FileWorkItems(IEnumerable<WorkItemModel> workItemModels);
+
+        /// <summary>
+        /// Asynchronously get file work item metadata for the specified results work item uris.
+        /// </summary>
+        /// <param name="workItemModel">
+        /// Describes the work items to be filed.
+        /// </param>
+        /// <returns>
+        /// An object that can be awaited to have updated work item models.
+        /// </returns>
+        public abstract Task<WorkItemModel> GetWorkItemMetadata(WorkItemModel workItemModel);
 
         public virtual void Dispose()
         {

@@ -10,12 +10,16 @@ namespace Microsoft.CodeAnalysis.Sarif.WorkItems
 {
     public static class SarifWorkItemsExtensions
     {
-        public static bool ShouldBeFiled(this Result result)
+        public static bool ShouldBeFiled(this Result result, bool shouldFileUnchanged)
         {
             if (result.BaselineState != BaselineState.None &&
-                result.BaselineState != BaselineState.New) 
-            { 
-                return false; 
+                result.BaselineState != BaselineState.New)
+            {
+                if (result.BaselineState != BaselineState.Unchanged ||
+                    (result.BaselineState == BaselineState.Unchanged && !shouldFileUnchanged))
+                {
+                    return false;
+                }
             }
                         
             if (result.Suppressions?.Count > 0) { return false; }
@@ -41,7 +45,23 @@ namespace Microsoft.CodeAnalysis.Sarif.WorkItems
             // Informational: a strictly informational message was emitted.
         }
 
-        public static string CreateWorkItemTitle(this Run run)
+        public static string GetFingerprintSplittingStrategyId(this Result result)
+        {
+            return $"{result.GetProperty("OrganizationName")}:{result.GetProperty("EtlEntity")}:{result.PartialFingerprints["SecretHash/v1"]}";
+        }
+
+        public static string GetPerRepositoryFingerprintSplittingStrategyId(this Result result)
+        {
+            string projectId = string.Empty;
+            result.TryGetProperty("ProjectId", out projectId);
+
+            string repositoryId = string.Empty;
+            result.TryGetProperty("RepositoryId", out repositoryId);
+
+            return $"{result.GetProperty("OrganizationName")}:{projectId ?? string.Empty}:{result.GetProperty("EtlEntity")}:{repositoryId ?? string.Empty}:{result.PartialFingerprints["SecretHash/v1"]}";
+        }
+
+        public static string CreateWorkItemTitle(this Run run, bool shouldFileUnchanged)
         {
             if (run == null) { throw new ArgumentNullException(nameof(run)); }
             if (run.Results == null) { throw new ArgumentNullException(nameof(run.Results)); }
@@ -50,7 +70,7 @@ namespace Microsoft.CodeAnalysis.Sarif.WorkItems
 
             foreach (Result result in run?.Results)
             {
-                if (result.ShouldBeFiled())
+                if (result.ShouldBeFiled(shouldFileUnchanged))
                 {
                     firstResult = result;
                     break;
@@ -116,23 +136,33 @@ namespace Microsoft.CodeAnalysis.Sarif.WorkItems
                 .ToList();
         }
 
-        public static int GetAggregateFilableResultsCount(this SarifLog log)
+        public static int GetAggregateFilableResultsCount(this SarifLog log, bool shouldFileUnchanged)
         {
             return log?.Runs?
                 .Select(run => run?.Results?
-                    .Select(result => result.ShouldBeFiled() ? 1 : 0).Sum())
+                    .Select(result => result.ShouldBeFiled(shouldFileUnchanged) ? 1 : 0).Sum())
                 .Sum() ?? 0;
         }
         
-        public static string CreateWorkItemDescription(this SarifLog log, Uri locationUri)
+        public static string CreateWorkItemDescription(this SarifLog log, SarifWorkItemContext context, IList<Uri> locationUris)
         {
-            int totalResults = log.GetAggregateFilableResultsCount();
+            int totalResults = log.GetAggregateFilableResultsCount(context.ShouldFileUnchanged);
             List<string> toolNames = log.GetToolNames();
             string phrasedToolNames = toolNames.ToAndPhrase();
             string multipleToolsFooter = toolNames.Count > 1 ? WorkItemsResources.MultipleToolsFooter : string.Empty;
 
             Uri runRepositoryUri = log?.Runs.FirstOrDefault()?.VersionControlProvenance?.FirstOrDefault().RepositoryUri;
-            string detectionLocation = !string.IsNullOrEmpty(runRepositoryUri?.OriginalString) ? runRepositoryUri?.OriginalString : locationUri?.OriginalString;
+            Uri detectionLocationUri = !string.IsNullOrEmpty(runRepositoryUri?.OriginalString) ? runRepositoryUri : locationUris?[0];
+
+            string detectionLocation = (detectionLocationUri?.IsAbsoluteUri == true && detectionLocationUri?.Scheme == "https")
+                ? context.CreateLinkText(detectionLocationUri.OriginalString, detectionLocationUri?.OriginalString)
+                : detectionLocationUri?.OriginalString;
+
+            if (locationUris?.Count > 1)
+            {
+                int additionalLocations = locationUris.Count - 1;
+                detectionLocation = $"{detectionLocation} (+{additionalLocations} locations)";
+            }
 
             // This work item contains {0} {1} issue(s) detected in {2}{3}. Click the 'Scans' tab to review results.
             string description =

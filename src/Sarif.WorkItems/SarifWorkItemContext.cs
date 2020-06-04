@@ -62,6 +62,18 @@ namespace Microsoft.CodeAnalysis.Sarif.WorkItems
             set { this.SetProperty(SplittingStrategyOption, value); }
         }
 
+        public bool SyncWorkItemMetadata
+        {
+            get { return this.GetProperty(SyncWorkItemMetadataOption); }
+            set { this.SetProperty(SyncWorkItemMetadataOption, value); }
+        }
+
+        public bool ShouldFileUnchanged
+        {
+            get { return this.GetProperty(ShouldFileUnchangedOption); }
+            set { this.SetProperty(ShouldFileUnchangedOption, value); }
+        }
+
         public OptionallyEmittedData DataToRemove
         {
             get { return this.GetProperty(DataToRemoveOption); }
@@ -83,6 +95,18 @@ namespace Microsoft.CodeAnalysis.Sarif.WorkItems
         {
             get { return this.GetProperty(AdditionalTagsOption); }
             set { this.SetProperty(AdditionalTagsOption, value); }
+        }
+
+        public string CreateLinkText(string text, string url)
+        {
+            if (this.CurrentProvider == Microsoft.WorkItems.FilingClient.SourceControlProvider.AzureDevOps)
+            {
+                return string.Format(WorkItemsResources.HtmlLinkTemplate, text, url);
+            }
+            else
+            {
+                return string.Format(WorkItemsResources.MarkdownLinkTemplate, text, url);
+            }
         }
 
         public void AddWorkItemModelTransformer(SarifWorkItemModelTransformer workItemModelTransformer)
@@ -218,6 +242,16 @@ namespace Microsoft.CodeAnalysis.Sarif.WorkItems
             new PerLanguageOption<SplittingStrategy>(
                 "Extensibility", nameof(SplittingStrategy),
                 defaultValue: () => { return 0; });
+
+        public static PerLanguageOption<bool> ShouldFileUnchangedOption { get; } =
+            new PerLanguageOption<bool>(
+                "Extensibility", nameof(ShouldFileUnchanged),
+                defaultValue: () => { return false; });
+
+        public static PerLanguageOption<bool> SyncWorkItemMetadataOption { get; } =
+            new PerLanguageOption<bool>(
+                "Extensibility", nameof(SyncWorkItemMetadata),
+                defaultValue: () => { return false; });
 
         public static PerLanguageOption<string> AzureDevOpsDescriptionFooterOption { get; } =
             new PerLanguageOption<string>(

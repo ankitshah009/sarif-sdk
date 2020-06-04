@@ -311,5 +311,59 @@ namespace Microsoft.CodeAnalysis.Sarif.Multitool.Rules {
                 return ResourceManager.GetString("SARIF1018_NotAbsolute", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: The result contains both the ruleId property &apos;{1}&apos; and the rule.id property &apos;{2}&apos;, and they are not equal..
+        /// </summary>
+        internal static string SARIF1019_InconsistentResultRuleId {
+            get {
+                return ResourceManager.GetString("SARIF1019_InconsistentResultRuleId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: The result contains neither result.ruleId nor result.rule.id..
+        /// </summary>
+        internal static string SARIF1019_MissingResultRuleId {
+            get {
+                return ResourceManager.GetString("SARIF1019_MissingResultRuleId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to In every result, at least one of the properties result.ruleId and result.rule.id must be present. If both are present, they must be equal..
+        /// </summary>
+        internal static string SARIF1019_RuleIdMustBePresentAndConsistent {
+            get {
+                return ResourceManager.GetString("SARIF1019_RuleIdMustBePresentAndConsistent", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: The $schema property value &apos;{1}&apos; does not refer to the final version of the SARIF 2.1.0 schema. If you are using an earlier version of the SARIF format, consider upgrading your analysis tool to produce the final version. If this file does in fact conform to the final version of the schema, upgrade the tool to populate the $schema property with a URL that refers to the final version of the schema..
+        /// </summary>
+        internal static string SARIF1020_ReferenceToOldSchemaVersion {
+            get {
+                return ResourceManager.GetString("SARIF1020_ReferenceToOldSchemaVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The $schema property should be present, and must refer to the final version of the SARIF 2.1.0 schema. This enables IDEs to provide Intellisense for SARIF log files..
+        /// </summary>
+        internal static string SARIF1020_ReferToFinalSchema {
+            get {
+                return ResourceManager.GetString("SARIF1020_ReferToFinalSchema", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0}: The SARIF log file does not contain a $schema property. Add a $schema property that refers to the final version of the SARIF 2.1.0 schema. This enables IDEs to provide Intellisense for SARIF log files..
+        /// </summary>
+        internal static string SARIF1020_SchemaReferenceMissing {
+            get {
+                return ResourceManager.GetString("SARIF1020_SchemaReferenceMissing", resourceCulture);
+            }
+        }
     }
 }

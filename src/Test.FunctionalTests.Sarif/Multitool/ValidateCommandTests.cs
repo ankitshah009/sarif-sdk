@@ -62,12 +62,12 @@ namespace Microsoft.CodeAnalysis.Sarif.FunctionalTests.Multitool
         public void SARIF1008_MessagesShouldEndWithPeriod_Invalid()
             => RunTest(MakeInvalidTestFileName(RuleId.MessagesShouldEndWithPeriod, nameof(RuleId.MessagesShouldEndWithPeriod)));
 
-/******************
- * This set of tests constructs a full file path that exceeds MAX_PATH when running in some AzureDevOps build and test
- * environments. As a result, we slightly truncate the file names so that they are within ADO's tolerance. If/when
- * we chase down a more satisfying solution, we can restore the nameof() pattern (and updated the corresponding
- * test file names in TestData\Inputs and TestData\ExpectedOutputs.
- ******************/
+        /******************
+         * This set of tests constructs a full file path that exceeds MAX_PATH when running in some AzureDevOps build and test
+         * environments. As a result, we slightly truncate the file names so that they are within ADO's tolerance. If/when
+         * we chase down a more satisfying solution, we can restore the nameof() pattern (and updated the corresponding
+         * test file names in TestData\Inputs and TestData\ExpectedOutputs.
+         ******************/
         [Fact]
         public void SARIF1012_EndLineMustNotBeLessThanStartLine_Valid()
             => RunTest(MakeValidTestFileName(RuleId.EndLineMustNotBeLessThanStartLine, "EndLineMustNotBeLessThanStart"));
@@ -82,7 +82,7 @@ namespace Microsoft.CodeAnalysis.Sarif.FunctionalTests.Multitool
         [Fact]
         public void SARIF1013_EndColumnMustNotBeLessThanStartColumn_Invalid()
             => RunTest(MakeInvalidTestFileName(RuleId.EndColumnMustNotBeLessThanStartColumn, "EndColumnMustNotBeLessThanStart"));
-/********** END PROBLEMATIC TESTS*******/
+        /********** END PROBLEMATIC TESTS*******/
 
         [Fact]
         public void SARIF1014_UriBaseIdRequiresRelativeUri_Valid()
@@ -124,6 +124,22 @@ namespace Microsoft.CodeAnalysis.Sarif.FunctionalTests.Multitool
         public void SARIF1018_InvalidUriInOriginalUriBaseIds_Invalid()
             => RunTest(MakeInvalidTestFileName(RuleId.InvalidUriInOriginalUriBaseIds, nameof(RuleId.InvalidUriInOriginalUriBaseIds)));
 
+        [Fact]
+        public void SARIF1019_RuleIdMustBePresentAndConsistent_Valid()
+            => RunTest(MakeValidTestFileName(RuleId.RuleIdMustBePresentAndConsistent, nameof(RuleId.RuleIdMustBePresentAndConsistent)));
+
+        [Fact]
+        public void SARIF1019_RuleIdMustBePresentAndConsistent_Invalid()
+            => RunTest(MakeInvalidTestFileName(RuleId.RuleIdMustBePresentAndConsistent, nameof(RuleId.RuleIdMustBePresentAndConsistent)));
+
+        [Fact]
+        public void SARIF1020_SchemaMustBePresentAndConsistent_Valid()
+            => RunTest(MakeValidTestFileName(RuleId.ReferToFinalSchema, nameof(RuleId.ReferToFinalSchema)));
+
+        [Fact]
+        public void SARIF1020_SchemaMustBePresentAndConsistent_Invalid()
+            => RunTest(MakeInvalidTestFileName(RuleId.ReferToFinalSchema, nameof(RuleId.ReferToFinalSchema)));
+
         private const string ValidTestFileNameSuffix = "_Valid.sarif";
         private const string InvalidTestFileNameSuffix = "_Invalid.sarif";
 
@@ -148,7 +164,10 @@ namespace Microsoft.CodeAnalysis.Sarif.FunctionalTests.Multitool
             // All SARIF rule prefixes require update to current release.
             // All rules with JSON prefix are low level syntax/deserialization checks.
             // We can't transform these test inputs as that operation fixes up erros in the file.
-            bool updateInputsToCurrentSarif = ruleUnderTest.StartsWith("SARIF") ? true : false;
+            // Also, don't transform the tests for SARIF1020, because that rule examines the actual contents of the $schema
+            // property, so we can't change it.
+            bool updateInputsToCurrentSarif = ruleUnderTest.StartsWith("SARIF") 
+                && ruleUnderTest != "SARIF1020" ? true : false;
 
             var validateOptions = new ValidateOptions
             {
